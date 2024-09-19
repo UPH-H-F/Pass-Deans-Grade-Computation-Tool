@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Computation Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Grade Computation Tool</h1>
+        <form id="gradeForm">
+            <label for="prelimGrade">Enter Prelim Grade (0-100):</label>
+            <input type="text" id="prelimGrade" name="prelimGrade" required>
+            <br>
+            <button type="submit">Compute</button>
+        </form>
+        <div id="errorMessage" style="color: red;"></div>
+        <div id="passMessage" style="color: green;"></div>
+        <div id="deansMessage" style="color: green;"></div>
+        <div class="tables">
+            <div class="table-container">
+                <h2>Minimum Grades to Pass</h2>
+                <table>
+                    <tr>
+                        <th>Midterm Grade</th>
+                        <td><span id="midterm-grade-pass">0</span></td>
+                        <td><input type="range" id="midterm-slider-pass" min="0" max="100" value="0"></td>
+                    </tr>
+                    <tr>
+                        <th>Final Grade</th>
+                        <td><span id="final-grade-pass">0</span></td>
+                        <td><input type="range" id="final-slider-pass" min="0" max="100" value="0"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="table-container">
+                <h2>Minimum Grades for Dean's List</h2>
+                <table>
+                    <tr>
+                        <th>Midterm Grade</th>
+                        <td><span id="midterm-grade-deans">0</span></td>
+                        <td><input type="range" id="midterm-slider-deans" min="0" max="100" value="0"></td>
+                    </tr>
+                    <tr>
+                        <th>Final Grade</th>
+                        <td><span id="final-grade-deans">0</span></td>
+                        <td><input type="range" id="final-slider-deans" min="0" max="100" value="0"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <!-- Added space between the output elements and the banner element -->
+        <div style="margin-top: 20px;"></div>
+        <div class="banner">
+            This tool helps you figure out the Midterm and Final grades you need to pass (75%) based on your Prelim grade. It also tells you if you can make the Dean’s List (90%+). Just enter your Prelim grade and see what you need to aim for! 🎯📚
+        </div>
+    </div>
+    <script>
+        const prelimGradeInput = document.getElementById('prelimGrade');
+        const errorMessage = document.getElementById('errorMessage');
+        const passMessage = document.getElementById('passMessage');
+        const deansMessage = document.getElementById('deansMessage');
+        const passMidterm = document.getElementById('midterm-grade-pass');
+        const passFinal = document.getElementById('final-grade-pass');
+        const deansMidterm = document.getElementById('midterm-grade-deans');
+        const deansFinal = document.getElementById('final-grade-deans');
+        const midtermSliderPass = document.getElementById('midterm-slider-pass');
+        const finalSliderPass = document.getElementById('final-slider-pass');
+        const midtermSliderDeans = document.getElementById('midterm-slider-deans');
+        const finalSliderDeans = document.getElementById('final-slider-deans');
+
+        document.getElementById('gradeForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            calculateGrades();
+        });
+
+        prelimGradeInput.addEventListener('input', function() {
+            validateInput();
+        });
+
+        // Dynamic slider movement for passing grades
+        midtermSliderPass.addEventListener('input', function() {
+            const midtermGrade = parseFloat(midtermSliderPass.value);
+            const prelimGrade = parseFloat(prelimGradeInput.value);
+            const requiredPoints = 75 - (prelimGrade * 0.2) - (midtermGrade * 0.4);
+            const finalGrade = requiredPoints / 0.4;
+            finalSliderPass.value = finalGrade;
+            updatePassGrades();
+        });
+
+        finalSliderPass.addEventListener('input', function() {
+            const finalGrade = parseFloat(finalSliderPass.value);
+            const prelimGrade = parseFloat(prelimGradeInput.value);
+            const requiredPoints = 75 - (prelimGrade * 0.2) - (finalGrade * 0.4);
+            const midtermGrade = requiredPoints / 0.4;
+            midtermSliderPass.value = midtermGrade;
+            updatePassGrades();
+        });
+
+        // Dynamic slider movement for Dean's list grades
+        midtermSliderDeans.addEventListener('input', function() {
+            const midtermGrade = parseFloat(midtermSliderDeans.value);
+            const prelimGrade = parseFloat(prelimGradeInput.value);
+            const requiredPoints = 90 - (prelimGrade * 0.2) - (midtermGrade * 0.4);
+            const finalGrade = requiredPoints / 0.4;
+            finalSliderDeans.value = finalGrade;
+            updateDeansGrades();
+        });
+
+        finalSliderDeans.addEventListener('input', function() {
+            const finalGrade = parseFloat(finalSliderDeans.value);
+            const prelimGrade = parseFloat(prelimGradeInput.value);
+            const requiredPoints = 90 - (prelimGrade * 0.2) - (finalGrade * 0.4);
+            const midtermGrade = requiredPoints / 0.4;
+            midtermSliderDeans.value = midtermGrade;
+            updateDeansGrades();
+        });
+
+
+        function calculateGrades() {
+            const prelimGrade = parseFloat(prelimGradeInput.value);
+            if (!isNaN(prelimGrade) && prelimGrade >= 0 && prelimGrade <= 100) {
+                errorMessage.textContent = '';
+                passMessage.textContent = '';
+                deansMessage.textContent = '';
+
+                // Calculate required points for Midterm and Final to reach 75%
+                const requiredPointsPass = 75 - (prelimGrade * 0.2);
+                if (requiredPointsPass < 0 || requiredPointsPass > 80) {
+                    errorMessage.textContent = 'Achieving 75% is not possible with the given Prelim grade.';
+                } else {
+                    const minMidtermFinalPass = requiredPointsPass / 0.8;
+                    passMidterm.textContent = minMidtermFinalPass.toFixed(2);
+                    passFinal.textContent = minMidtermFinalPass.toFixed(2);
+                    passMessage.textContent = 'You have a chance to pass!';
+                    midtermSliderPass.value = minMidtermFinalPass;
+                    finalSliderPass.value = minMidtermFinalPass;
+                }
+
+                // Calculate required points for Dean's List
+                const requiredPointsDeans = 90 - (prelimGrade * 0.2);
+                if (requiredPointsDeans < 0 || requiredPointsDeans > 80) {
+                    errorMessage.textContent += '\nAchieving 90% is not possible with the given Prelim grade.';
+                } else {
+                    const minMidtermFinalDeans = requiredPointsDeans / 0.8;
+                    deansMidterm.textContent = minMidtermFinalDeans.toFixed(2);
+                    deansFinal.textContent = minMidtermFinalDeans.toFixed(2);
+                    deansMessage.textContent = 'You have a chance to qualify for the Dean\'s List!';
+                    midtermSliderDeans.value = minMidtermFinalDeans;
+                    finalSliderDeans.value = minMidtermFinalDeans;
+                }
+            } else {
+                errorMessage.textContent = 'Please enter a valid number between 0 and 100.';
+            }
+        }
+
+        function updatePassGrades() {
+            const midtermGrade = parseFloat(midtermSliderPass.value);
+            const finalGrade = parseFloat(finalSliderPass.value);
+            const prelimGrade = parseFloat(prelimGradeInput.value);
+            const totalGrade = (prelimGrade * 0.2) + (midtermGrade * 0.4) + (finalGrade * 0.4);
+            if (totalGrade >= 75) {
+                passMidterm.textContent = midtermGrade.toFixed(2);
+                passFinal.textContent = finalGrade.toFixed(2);
+                passMessage.textContent = 'You have a chance to pass!';
+            } else {
+                passMessage.textContent = 'Adjust the sliders to achieve at least 75%.';
+            }
+        }
+
+        function updateDeansGrades() {
+            const midtermGrade = parseFloat(midtermSliderDeans.value);
+            const finalGrade = parseFloat(finalSliderDeans.value);
+            const prelimGrade = parseFloat(prelimGradeInput.value);
+            const totalGrade = (prelimGrade * 0.2) + (midtermGrade * 0.4) + (finalGrade * 0.4);
+            if (totalGrade >= 90) {
+                deansMidterm.textContent = midtermGrade.toFixed(2);
+                deansFinal.textContent = finalGrade.toFixed(2);
+                deansMessage.textContent = 'You have a chance to qualify for the Dean\'s List!';
+            } else {
+                deansMessage.textContent = 'Adjust the sliders to achieve at least 90%.';
+            }
+        }
+
+        // Function to validate input and handle scientific notation
+        function validateInput() {
+            const prelimGrade = prelimGradeInput.value;
+            // Regex to match scientific notation (e.g., 8e)
+            if (/^\d+e$/.test(prelimGrade)) {
+                // Extract the numeric part
+                const numericPart = prelimGrade.substring(0, prelimGrade.length - 1);
+                // Convert to a number and add '0' to the end
+                const parsedGrade = parseFloat(numericPart) * 10;
+                prelimGradeInput.value = parsedGrade; // Update the input field
+            } 
+
+            // Check for valid number after conversion
+            if (!/^\d+(\.\d+)?$/.test(prelimGradeInput.value)) {
+                errorMessage.textContent = 'Please enter a valid number between 0 and 100.';
+            } else {
+                const parsedGrade = parseFloat(prelimGradeInput.value);
+                if (parsedGrade >= 0 && parsedGrade <= 100) {
+                    errorMessage.textContent = '';
+                } else {
+                    errorMessage.textContent = 'Please enter a valid number between 0 and 100.';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
