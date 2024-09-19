@@ -83,18 +83,38 @@
         midtermSliderPass.addEventListener('input', function() {
             const midtermGrade = parseFloat(midtermSliderPass.value);
             const prelimGrade = parseFloat(prelimGradeInput.value);
-            const requiredPoints = 75 - (prelimGrade * 0.2) - (midtermGrade * 0.4);
-            const finalGrade = requiredPoints / 0.4;
-            finalSliderPass.value = finalGrade;
+            const requiredPointsPass = 75 - (prelimGrade * 0.2);
+            const requiredPointsMidterm = midtermGrade * 0.3;
+            const finalGrade = (requiredPointsPass - requiredPointsMidterm) / 0.5;
+
+            // Restrict finalGrade to 0-100 range
+            if (finalGrade > 100) {
+                finalSliderPass.value = 100;
+            } else if (finalGrade < 0) {
+                finalSliderPass.value = 0;
+            } else {
+                finalSliderPass.value = finalGrade;
+            }
+
             updatePassGrades();
         });
 
         finalSliderPass.addEventListener('input', function() {
             const finalGrade = parseFloat(finalSliderPass.value);
             const prelimGrade = parseFloat(prelimGradeInput.value);
-            const requiredPoints = 75 - (prelimGrade * 0.2) - (finalGrade * 0.4);
-            const midtermGrade = requiredPoints / 0.4;
-            midtermSliderPass.value = midtermGrade;
+            const requiredPointsPass = 75 - (prelimGrade * 0.2);
+            const requiredPointsFinal = finalGrade * 0.5;
+            const midtermGrade = (requiredPointsPass - requiredPointsFinal) / 0.3;
+
+            // Restrict midtermGrade to 0-100 range
+            if (midtermGrade > 100) {
+                midtermSliderPass.value = 100;
+            } else if (midtermGrade < 0) {
+                midtermSliderPass.value = 0;
+            } else {
+                midtermSliderPass.value = midtermGrade;
+            }
+
             updatePassGrades();
         });
 
@@ -102,18 +122,38 @@
         midtermSliderDeans.addEventListener('input', function() {
             const midtermGrade = parseFloat(midtermSliderDeans.value);
             const prelimGrade = parseFloat(prelimGradeInput.value);
-            const requiredPoints = 90 - (prelimGrade * 0.2) - (midtermGrade * 0.4);
-            const finalGrade = requiredPoints / 0.4;
-            finalSliderDeans.value = finalGrade;
+            const requiredPointsDeans = 90 - (prelimGrade * 0.2);
+            const requiredPointsMidterm = midtermGrade * 0.3;
+            const finalGrade = (requiredPointsDeans - requiredPointsMidterm) / 0.5;
+
+            // Restrict finalGrade to 0-100 range
+            if (finalGrade > 100) {
+                finalSliderDeans.value = 100;
+            } else if (finalGrade < 0) {
+                finalSliderDeans.value = 0;
+            } else {
+                finalSliderDeans.value = finalGrade;
+            }
+
             updateDeansGrades();
         });
 
         finalSliderDeans.addEventListener('input', function() {
             const finalGrade = parseFloat(finalSliderDeans.value);
             const prelimGrade = parseFloat(prelimGradeInput.value);
-            const requiredPoints = 90 - (prelimGrade * 0.2) - (finalGrade * 0.4);
-            const midtermGrade = requiredPoints / 0.4;
-            midtermSliderDeans.value = midtermGrade;
+            const requiredPointsDeans = 90 - (prelimGrade * 0.2);
+            const requiredPointsFinal = finalGrade * 0.5;
+            const midtermGrade = (requiredPointsDeans - requiredPointsFinal) / 0.3;
+
+            // Restrict midtermGrade to 0-100 range
+            if (midtermGrade > 100) {
+                midtermSliderDeans.value = 100;
+            } else if (midtermGrade < 0) {
+                midtermSliderDeans.value = 0;
+            } else {
+                midtermSliderDeans.value = midtermGrade;
+            }
+
             updateDeansGrades();
         });
 
@@ -159,7 +199,8 @@
             const midtermGrade = parseFloat(midtermSliderPass.value);
             const finalGrade = parseFloat(finalSliderPass.value);
             const prelimGrade = parseFloat(prelimGradeInput.value);
-            const totalGrade = (prelimGrade * 0.2) + (midtermGrade * 0.4) + (finalGrade * 0.4);
+            const totalGrade = (prelimGrade * 0.2) + (midtermGrade * 0.3) + (finalGrade * 0.5);
+
             if (totalGrade >= 75) {
                 passMidterm.textContent = midtermGrade.toFixed(2);
                 passFinal.textContent = finalGrade.toFixed(2);
@@ -173,7 +214,8 @@
             const midtermGrade = parseFloat(midtermSliderDeans.value);
             const finalGrade = parseFloat(finalSliderDeans.value);
             const prelimGrade = parseFloat(prelimGradeInput.value);
-            const totalGrade = (prelimGrade * 0.2) + (midtermGrade * 0.4) + (finalGrade * 0.4);
+            const totalGrade = (prelimGrade * 0.2) + (midtermGrade * 0.3) + (finalGrade * 0.5);
+
             if (totalGrade >= 90) {
                 deansMidterm.textContent = midtermGrade.toFixed(2);
                 deansFinal.textContent = finalGrade.toFixed(2);
